@@ -82,12 +82,12 @@ graph TD
 Ensure a `.env` file exists in the root folder containing database and API connectivity values:
 ```env
 # PostgreSQL Database Settings
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=inventory_db
+POSTGRES_USER=<your_database_username>
+POSTGRES_PASSWORD=<your_database_password>
+POSTGRES_DB=<your_database_name>
 
 # Backend API Database Connector
-DATABASE_URL=postgresql://postgres:postgres@db:5432/inventory_db
+DATABASE_URL=postgresql://<your_database_username>:<your_database_password>@db:5432/<your_database_name>
 ```
 
 ### Running the System
@@ -123,6 +123,8 @@ python test_api.py
 ```
 
 GitHub Actions automatically runs these exact backend integration tests and runs strict ESLint quality validation on the React frontend components on every commit to `main`.
+
+![GitHub Actions CI Pipeline](images/ContinuousIntegration.png)
 
 ---
 

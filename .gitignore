@@ -127,3 +127,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+.DS_Store
+
+# Vercel Cache/Build Folders
+.vercel/
