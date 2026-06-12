@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-export default function Orders({ orders, products, customers, onCreateOrder, onDeleteOrder, showToast }) {
+export default function Orders({ orders, products, customers, onCreateOrder, onDeleteOrder }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);

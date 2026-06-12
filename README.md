@@ -1,98 +1,151 @@
-# InvOrder - Containerized Inventory & Order Management System
+# 📦 InvOrder - Containerized Inventory & Order Management System
 
-InvOrder is a production-ready, full-stack inventory and order tracking application designed with high-quality UI/UX aesthetics. The entire stack is containerized and orchestrated using Docker Compose.
+InvOrder is a production-ready, full-stack inventory and order tracking application designed with premium glassmorphic UI/UX aesthetics. The entire stack is containerized with Docker, verified via an automated GitHub Actions CI/CD pipeline, and deployed to Render (backend & PostgreSQL) and Vercel (frontend).
+
+---
+
+## 📸 System Preview
+
+### 🖥️ Dashboard & Theme
+The application features a responsive, glassmorphic "Ocean Cyan & Emerald Green" layout. All key business metrics are arranged horizontally on desktop viewports with responsive adaptations for tablet and mobile devices:
+
+![Dashboard Overview](images/Oder&InventoryDashboard.png)
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: React (Vite), styled with a custom Vanilla CSS glassmorphic theme.
-- **Backend API**: Python, powered by FastAPI (asynchronous context lifespans, input data schemas via Pydantic).
-- **Database**: PostgreSQL (persisted using Docker volumes, integrity constraints with RESTRICT triggers).
-- **Orchestration**: Docker Compose for service builds and startup ordering.
+- **Frontend**: React (Vite) styled with a custom Vanilla CSS glassmorphic theme (responsive flex structures, custom transitions, Indian Rupee localization).
+- **Backend API**: Python FastAPI utilizing asynchronous lifespans, SQLAlchemy ORM, and Pydantic input schemas.
+- **Database**: PostgreSQL with strict integrity constraints (e.g. database-level `RESTRICT` triggers to prevent unsafe cascade deletions).
+- **Orchestration**: Docker Compose for concurrent multi-container builds and startup sequencing.
+- **CI/CD Pipeline**: GitHub Actions for automated unit testing (using a live PostgreSQL service container) and strict ESLint compliance checks.
 
 ---
 
-## ✨ Features
+## ⚙️ System Architecture & Workflow
 
-- **Dashboard Metrics**: Real-time stats showing Total Products, Total Customers, Total Orders, and Low Stock Alerts (items $\le$ 5 units).
-- **Product Management**: Full CRUD operations with unique SKU checking and price/stock constraints.
-- **Customer Directory**: Add/remove customer accounts with duplicate email validation.
-- **Order Placement**: Multi-item shopping cart logic with automatic backend subtotal summation, live client-side stock availability checks, and automatic inventory decrements.
-- **Order Cancellation**: Deleting/cancelling a past transaction automatically returns items to inventory stock.
-- **Safety Constraints**: Prevent deleting active customers or products currently linked in existing sales orders.
-- **Toasts Notification Stack**: Stateful, visual alerts for success verification or detailed error summaries.
-- **Ocean Cyan Theme**: Dynamic visual styling with blur effects and active-highlight sidebar.
+Here is how the continuous integration, continuous deployment, and runtime hosting architecture flow together:
+
+```mermaid
+graph TD
+    %% Developer Actions
+    Dev[💻 Developer] -->|Git Push| GitHub[🐙 GitHub Repository]
+    
+    %% CI / GitHub Actions Pipeline
+    subgraph GitHub Actions [⚙️ GitHub Actions CI Pipeline]
+        GitHub --> CI_Trigger[🚀 Trigger CI Workflow]
+        
+        %% Backend Jobs
+        subgraph Backend Checks
+            CI_Trigger --> BE_Setup[🐍 Setup Python 3.11]
+            BE_Setup --> BE_Services[🗄️ Start Postgres alpine Service]
+            BE_Services --> BE_Server[⚡ Start FastAPI server]
+            BE_Server --> BE_Tests[🧪 Run test_api.py integration tests]
+        end
+        
+        %% Frontend Jobs
+        subgraph Frontend Checks
+            CI_Trigger --> FE_Setup[🟢 Setup Node.js 20]
+            FE_Setup --> FE_Lint[🔍 Run ESLint checks]
+            FE_Lint --> FE_Build[📦 Run Vite production build]
+        end
+    end
+    
+    %% Deployments
+    BE_Tests -->|On success| Deploy_BE[☁️ Deploy Backend API & Postgres to Render]
+    FE_Build -->|On success| Deploy_FE[⚡ Deploy Frontend to Vercel]
+    
+    %% Live Environments
+    subgraph Live Application
+        Deploy_BE --> Render_Server[Render Web Service: FastAPI]
+        Deploy_BE --> Render_DB[Render Managed PostgreSQL]
+        Deploy_FE --> Vercel_SPA[Vercel Serverless Hosting]
+        
+        Render_Server -->|Database Queries| Render_DB
+        Vercel_SPA -->|API Calls: VITE_API_URL| Render_Server
+    end
+    
+    %% User Access
+    User[👥 End User] -->|Browses Website| Vercel_SPA
+```
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed on your machine.
-- Python 3.11+ (if running tests locally outside Docker).
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed locally.
+- Python 3.11+ (if running tests locally outside of containers).
 
-### Configuration
-1. Check that a `.env` file exists in the root directory (based on `.env.example`).
-   ```env
-   # PostgreSQL Configuration
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=postgres
-   POSTGRES_DB=inventory_db
+### Local Configuration
+Ensure a `.env` file exists in the root folder containing database and API connectivity values:
+```env
+# PostgreSQL Database Settings
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=inventory_db
 
-   # Backend Configuration
-   DATABASE_URL=postgresql://postgres:postgres@db:5432/inventory_db
-   ```
+# Backend API Database Connector
+DATABASE_URL=postgresql://postgres:postgres@db:5432/inventory_db
+```
 
-### Running the Application
-Spin up the database, backend, and frontend containers concurrently:
+### Running the System
+Build and start all services concurrently in background mode:
 ```bash
 docker compose up --build -d
 ```
 
-Once initialized, the services will be running on:
-- **React Frontend**: `http://localhost:3000`
-- **FastAPI API Documentation**: `http://localhost:8000/docs`
-- **PostgreSQL Database**: `localhost:5432`
+Once successfully started, access the local environments:
+- 💻 **React Frontend**: [http://localhost:3000](http://localhost:3000)
+- ⚡ **FastAPI Interactive Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- 🗄️ **PostgreSQL Port Binding**: `localhost:5432`
 
-To shut down the services:
+To tear down the containers and preserve database volume data:
 ```bash
-docker compose down -v
+docker compose down
 ```
+To reset and destroy the database volumes, add the `-v` flag: `docker compose down -v`.
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing & CI Pipeline
 
-We have built a comprehensive API test suite in `test_api.py` that verifies 10 business logic scenarios (negative prices, duplicate SKUs, duplicate emails, stock reduction, stock restoration on cancellation, restrict deletions, etc.).
+We have implemented a comprehensive test suite in [test_api.py](file:///c:/Users/ANOOP%20SINGH/OneDrive/Desktop/Order&InventoryManagement/test_api.py) that covers critical business logic, edge cases, and integrity constraints:
+- Input validation (rejecting negative prices or negative stock quantities).
+- Unique constraint checks (preventing duplicate SKUs or duplicate customer emails).
+- Transactional flows (stock reduction on orders, stock restoration on cancellations).
+- Delete restrictions (blocking removal of customers or products linked to active orders).
 
-Ensure the Docker containers are running, and execute:
+With the containers running, you can run the test suite locally:
 ```bash
 python test_api.py
 ```
+
+GitHub Actions automatically runs these exact backend integration tests and runs strict ESLint quality validation on the React frontend components on every commit to `main`.
 
 ---
 
 ## 🌐 Production Deployment
 
-### 1. Backend (Railway or Render)
-Both platforms natively support Docker-based deployments.
-1. Connect your GitHub repository to **Railway** or **Render**.
-2. Add a new service pointing to the `backend` directory.
-3. Configure a managed **PostgreSQL Database** addon/service on the platform.
-4. Set the following environment variables in the service dashboard:
-   - `DATABASE_URL`: Set to the connection string of your managed database.
-   - `PORT`: (Render/Railway automatically manages this, and our Dockerfile dynamically binds to it).
+### 1. Backend & Managed Database (Render)
+The FastAPI backend and PostgreSQL database are hosted on Render. Render manages the Postgres instance and deploys the FastAPI container by reading the [Dockerfile](file:///c:/Users/ANOOP%20SINGH/OneDrive/Desktop/Order&InventoryManagement/backend/Dockerfile).
 
-### 2. Frontend (Vercel)
-Vercel is optimized for building static single-page applications.
-1. Connect your GitHub repository to **Vercel** and import the project.
-2. Configure the following project options:
-   - **Framework Preset**: `Vite` (automatically detected).
-   - **Root Directory**: `frontend`.
-   - **Build Command**: `npm run build`.
-   - **Output Directory**: `dist`.
-3. Set the following Environment Variable:
-   - `VITE_API_URL`: Set to your live backend URL (e.g. `https://your-backend-api.railway.app`).
-4. Vercel automatically reads `frontend/vercel.json` to handle client-side SPA routing rewrites.
+![Render Dashboard](images/RenderDeployment.png)
 
+1. Connect your repository to Render.
+2. Spin up a **managed PostgreSQL database**.
+3. Create a **Web Service** for the backend, setting the root directory to `backend`.
+4. Inject the environment variables:
+   - `DATABASE_URL`: Your Render database connection string.
+
+### 2. Frontend SPA (Vercel)
+The React single-page application (SPA) is built and deployed serverless on Vercel, referencing rewrites defined in `vercel.json` to enable clean routing.
+
+![Vercel Dashboard](images/vercelDeployment.png)
+
+1. Connect your repository to Vercel and import the project.
+2. Select **Vite** as the build configuration preset.
+3. Configure the Root Directory to `frontend`.
+4. Inject the following Environment Variable:
+   - `VITE_API_URL`: Your live Render backend API endpoint.

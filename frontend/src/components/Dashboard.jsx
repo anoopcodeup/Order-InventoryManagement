@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function Dashboard({ products, customers, orders, onNavigate }) {
   const totalProducts = products.length;

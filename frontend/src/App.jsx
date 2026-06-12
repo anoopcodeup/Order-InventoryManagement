@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import Products from './components/Products';
@@ -25,7 +25,7 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const apiRequest = async (path, options = {}) => {
+  const apiRequest = useCallback(async (path, options = {}) => {
     const url = `${API_BASE_URL}${path}`;
     const headers = {
       'Content-Type': 'application/json',
@@ -54,9 +54,9 @@ export default function App() {
       showToast('Action Failed', err.message, 'error');
       return { success: false, error: err.message };
     }
-  };
+  }, [showToast]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     const [pRes, cRes, oRes] = await Promise.all([
       apiRequest('/products'),
@@ -68,11 +68,12 @@ export default function App() {
     if (cRes.success) setCustomers(cRes.data);
     if (oRes.success) setOrders(oRes.data);
     setIsLoading(false);
-  };
+  }, [apiRequest]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleAddProduct = async (productData) => {
     const res = await apiRequest('/products', {
@@ -196,7 +197,6 @@ export default function App() {
             onAddProduct={handleAddProduct}
             onUpdateProduct={handleUpdateProduct}
             onDeleteProduct={handleDeleteProduct}
-            showToast={showToast}
           />
         );
       case 'customers':
@@ -205,7 +205,6 @@ export default function App() {
             customers={customers}
             onAddCustomer={handleAddCustomer}
             onDeleteCustomer={handleDeleteCustomer}
-            showToast={showToast}
           />
         );
       case 'orders':
@@ -216,7 +215,6 @@ export default function App() {
             customers={customers}
             onCreateOrder={handleCreateOrder}
             onDeleteOrder={handleDeleteOrder}
-            showToast={showToast}
           />
         );
       default:

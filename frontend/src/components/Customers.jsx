@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-export default function Customers({ customers, onAddCustomer, onDeleteCustomer, showToast }) {
+export default function Customers({ customers, onAddCustomer, onDeleteCustomer }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
