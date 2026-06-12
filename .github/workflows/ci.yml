@@ -7,7 +7,6 @@ on:
     branches: [ main ]
 
 jobs:
-
   # JOB 1: Backend Checks & Live DB Integration Testing
   backend-tests:
     runs-on: ubuntu-latest
@@ -43,7 +42,7 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Start FastAPI server in background
-        cwd: ./backend
+        working-directory: ./backend
         run: |
           uvicorn app.main:app --host 0.0.0.0 --port 8000 &
         env:
@@ -57,7 +56,9 @@ jobs:
           # Tell our test runner to access our running FastAPI background service
           BASE_URL: http://localhost:8000
 
+  # -----------------------------------------------------------------
   # JOB 2: Frontend Compilation & Quality Checks
+  # -----------------------------------------------------------------
   frontend-checks:
     runs-on: ubuntu-latest
 
@@ -73,15 +74,15 @@ jobs:
           cache-dependency-path: frontend/package.json
 
       - name: Install dependencies
-        cwd: ./frontend
+        working-directory: ./frontend
         run: npm install
 
       - name: Run ESLint
-        cwd: ./frontend
+        working-directory: ./frontend
         run: npm run lint
 
       - name: Test production compilation
-        cwd: ./frontend
+        working-directory: ./frontend
         run: npm run build
         env:
           # Compile using a mock URL to verify bundler integrity
